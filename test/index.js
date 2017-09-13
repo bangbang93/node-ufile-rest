@@ -16,6 +16,8 @@ describe('UFile SDK', function () {
       resourceCount: 'Yes',
       memberCount: 'Yes',
     })
-    resp['RetCode'].should.eql(0)
+    console.log(resp.body)
+    console.log(resp.req)
+    resp.body['RetCode'].should.eql(0)
   })
 })
