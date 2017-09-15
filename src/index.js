@@ -23,6 +23,13 @@ class UFile {
     this._protocol = useHttps? 'https' : 'http'
   }
 
+  /**
+   * 前缀列表查询
+   * @param {string} [prefix=''] 前缀，utf-8编码，默认为空字符串
+   * @param {string} [marker=''] 标志字符串，utf-8编码，默认为空字符串
+   * @param {number} [limit=20] 文件列表数目，默认为20
+   * @returns {Promise}
+   */
   prefixFileList({prefix, marker, limit}) {
     return this._request({
       url: `http://${this._bucketName}${this._domain}`,
@@ -76,6 +83,35 @@ class UFile {
     })
     return req
   }
+
+  sign({method, headers, bucketName = this._bucketName, key = ''}) {
+    if (!key.startsWith('/')) {
+      key = '/' + key
+    }
+    let p = [method.toUpperCase(), getHeader('content-md5'), getHeader('content-type'), getHeader('date')]
+    Object.keys(headers)
+      .sort()
+      .forEach((key) => {
+        if (key.toLowerCase().startsWith('x-ucloud')) {
+          p.push(`${key.toLowerCase()}:${getHeader(key)}`)
+        }
+      })
+    p.push(`/${bucketName}${key}`)
+    const stringToSign = p.join('\n')
+    return hmacSha1(stringToSign, this._priKey)
+
+    function getHeader(key) {
+      let r = headers[key] || header[key.toLowerCase()]
+      if (r) return r
+      const keys = Object.keys(headers)
+      for(const k of keys) {
+        if (k.toLowerCase() === key) {
+          return headers[k]
+        }
+      }
+      return ''
+    }
+  }
   
 
   _sign(req, key) {
@@ -89,7 +125,6 @@ class UFile {
       })
     p.push(`/${this._bucketName}${key}`)
     const stringToSign = p.join('\n')
-    console.log(stringToSign)
     return hmacSha1(stringToSign, this._priKey)
   }
 }
