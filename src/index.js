@@ -35,7 +35,7 @@ class UFile {
   prefixFileList({prefix, marker, limit}) {
     return this._request({
       url: `http://${this._bucketName}${this._domain}`,
-      qs: {
+      query: {
         list: '',
         prefix,
         marker,
@@ -135,7 +135,147 @@ class UFile {
     })
   }
 
-  async _request({url, qs, body, method = 'get', files, headers, key = ''}) {
+  /**
+   * 删除文件
+   * @param {string} key
+   * @returns {Promise}
+   */
+  deleteFile(key) {
+    if (typeof key === 'object') {
+      key = key.key
+    }
+    return this._request({
+      key,
+      method: 'delete'
+    })
+  }
+
+  /**
+   * 初始化分片上传
+   * @param {string} key 文件名
+   * @returns {Promise}
+   */
+  initiateMultipartUpload({key}) {
+    return this._request({
+      method: 'post',
+      key,
+      query:{
+        uploads: ''
+      }
+    })
+  }
+
+  /**
+   * 上传分片
+   * @param {string} key 文件名
+   * @param {string} uploadId 分片id
+   * @param {number} partNumber 第几块分片
+   * @param {buffer} buffer 内容
+   * @returns {Promise}
+   */
+  uploadPart({key, uploadId, partNumber, buffer}) {
+    return this._request({
+      method: 'put',
+      key,
+      query: {
+        uploadId,
+        partNumber,
+      },
+      body: buffer,
+    })
+  }
+
+  /**
+   * 完成分片
+   * @param {string} key 文件名
+   * @param {string} uploadId 分片id
+   * @param {string} [newKey] 等上传完毕开始指定的key可能已经被占用,遇到这种情形时会采用newKey参数的值作为文件最终的key，否则仍然采用原来的key
+   * @param {array} parts 分片的etag们
+   * @returns {Promise}
+   */
+  finishMultipartUpload({key, uploadId, newKey, parts}) {
+    return this._request({
+      method: 'post',
+      key,
+      query: {
+        uploadId,
+        newKey,
+      },
+      body: parts.join(',')
+    })
+  }
+
+  /**
+   * 放弃分片
+   * @param {string} key 文件名
+   * @param {string} uploadId 分片id
+   * @returns {Promise}
+   */
+  abortMultipartUpload({key, uploadId}) {
+    return this._request({
+      method: 'delete',
+      key,
+      query: {
+        uploadId,
+      }
+    })
+  }
+
+  /**
+   * 获取正在执行的分片上传
+   * @param {string} [prefix] 前缀，utf-8编码，默认为空字符串
+   * @param {string} [marker] 标志字符串，utf-8编码，默认为空字符串
+   * @param {number} [limit=20] id列表数目，默认为20
+   * @returns {Promise}
+   */
+  getMultiUploadId({prefix, marker, limit}) {
+    return this._request({
+      method: 'get',
+      query: {
+        prefix,
+        marker,
+        limit,
+      }
+    })
+  }
+
+  /**
+   * 获取已上传成功的分片列表
+   * @param {string} uploadId 上传id
+   * @returns {Promise}
+   */
+  getMultiUploadPart({uploadId}) {
+    return this._request({
+      method: 'get',
+      query: {
+        muploadpart: '',
+        uploadId,
+      }
+    })
+  }
+
+  /**
+   * 操作文件的Meta信息
+   * @param {string} key key
+   * @param {string} mimeType 文件的mimetype
+   * @returns {Promise}
+   */
+  opMeta({key, mimeType}) {
+    return this._request({
+      method: 'post',
+      key,
+      query: {
+        opmeta: ''
+      },
+      body: {
+        op: 'ste',
+        metak: 'mimetype',
+        metav: mimeType,
+      }
+    })
+  }
+
+  async _request({url, query, body, method = 'get', files, headers, key = ''}) {
     if (!key.startsWith('/')) {
       key = '/' + key
     }
