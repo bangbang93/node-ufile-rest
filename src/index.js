@@ -5,6 +5,8 @@
 const request = require('superagent')
 const crypto = require('crypto')
 const pascalCase = require('pascal-case')
+const Stream = require('stream')
+const fs = require('fs')
 
 class UFile {
   /**
@@ -42,9 +44,94 @@ class UFile {
     })
   }
 
-  getFile({filename}) {
+  /**
+   * 上传文件
+   * @param {string} key
+   * @param {Buffer|Stream.Readable|string} file 文件
+   * @param {string} [mimeType='application/octet-stream'] 文件类型
+   * @returns {Promise}
+   */
+  putFile({key, file, mimeType= 'application/octet-stream'}) {
+    switch (true) {
+      case file instanceof Buffer:
+        return this._request({
+          key,
+          method: 'put',
+          body: file,
+          headers: {
+            'content-type': mimeType
+          }
+        })
+      case file instanceof Stream.Readable:
+        const stream = this._request({
+          key,
+          method: 'put',
+          headers: {
+            'content-type': mimeType,
+          }
+        })
+        return new Promise((resolve) => {
+          file.pipe(stream)
+          file.on('end', resolve)
+        })
+      case typeof file === 'string':
+        return this.putFile({
+          key,
+          file: fs.createReadStream(file),
+          mimeType,
+        })
+      default:
+        throw new Error('cannot resolve file')
+    }
+  }
+
+  /**
+   * 秒传文件
+   * @param {string} hash 待上传文件的ETag,详见ETag生成文档
+   * @param {string} fileName Bucket中文件的名称
+   * @param {string} fileSize 待上传文件的大小
+   * @returns {Promise}
+   */
+  uploadHit({hash, fileName, fileSize}) {
     return this._request({
-      key: filename
+      url: `${this._protocol}://${this._bucketName}${this._domain}/uploadhit`,
+      query: {
+        Hash: hash,
+        FileName: fileName,
+        FileSize: fileSize,
+      }
+    })
+  }
+
+  /**
+   * 下载文件
+   * @param {string} key key
+   * @param {string} [range] 分片下载的文件范围
+   * @param {string} [ifModifiedSince] 只返回从某时修改过的文件，否则返回304(not modified)
+   * @returns {Promise}
+   */
+  getFile({key, range, ifModifiedSince}) {
+    return this._request({
+      key,
+      headers: {
+        range,
+        'if-modified-since': ifModifiedSince
+      }
+    })
+  }
+
+  /**
+   * 查询文件基本信息
+   * @param {string} key
+   * @returns {Promise}
+   */
+  headFile(key) {
+    if (typeof key === 'object') {
+      key = key.key
+    }
+    return this._request({
+      key,
+      method: 'head'
     })
   }
 
