@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "test": "mocha",
-    "jsdoc": "jsdoc2md -c .jsdoc.json src/index.js | tee API.md"
+    "jsdoc": "jsdoc2md -c .jsdoc.json src/index.js --template .jsdoc2md/README.hbs | tee README.md"
   },
   "repository": {
     "type": "git",
