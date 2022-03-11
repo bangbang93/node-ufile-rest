@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "module": "es2022",
+    "target": "es2019",
+    "moduleResolution": "node",
+    "inlineSourceMap": true,
+    "declaration": true,
+    "outDir": "lib",
+    "allowSyntheticDefaultImports": true,
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
