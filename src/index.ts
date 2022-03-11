@@ -14,13 +14,14 @@ import {
 const defaultMimeType = 'application/octet-stream'
 
 export class UFile {
+  public readonly got: Got
+
   private readonly pubKey: string
   private readonly priKey: string
   private readonly bucketName: string
   private readonly domain: string
   private readonly scheme: string
 
-  private readonly got: Got
   /**
    * UFile SDK
    * @param options

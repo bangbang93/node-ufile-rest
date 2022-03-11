@@ -19,3 +19,10 @@ const ufile = new UFile({
 const res = await ufile.prefixFileList()
 console.log(res)
 ```
+## Call UFile Api Direct
+```typescript
+const res = await ufile.got.get('/file.bin')
+```
+Options available in [Got Options](https://github.com/sindresorhus/got/blob/d95ceeafb16f306e11f5d7251a82ba073252cbee/documentation/2-options.md)
+
+Authorization header can be calculated automatic.
