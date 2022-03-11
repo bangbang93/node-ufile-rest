@@ -19,7 +19,7 @@
     "ucloud"
   ],
   "author": "bangbang93",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/bangbang93/node-ufile-rest/issues"
   },
@@ -36,5 +36,8 @@
     "eslint": "^8.10.0",
     "mocha": "^3.5.3",
     "typedoc": "^0.22.13"
-  }
+  },
+  "files": [
+    "lib"
+  ]
 }
