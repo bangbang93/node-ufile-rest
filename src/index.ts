@@ -2,9 +2,9 @@ import is from '@sindresorhus/is'
 import {createHmac} from 'crypto'
 import {createReadStream} from 'fs'
 import got, {Got, Options} from 'got'
-import * as Stream from 'stream'
-import {Readable} from 'stream'
-import {pipeline} from 'stream/promises'
+import {pipeline, Readable} from 'stream'
+import {finished} from 'stream/promises'
+import {promisify} from 'util'
 import {EnumStorageClass} from './constant'
 import {
   IFinishMultipartUploadRes, IGetMultiUploadIdRes, IHeadFileRes, IInitiateMultipartUploadRes, IListObjectsRes, IOptions,
@@ -74,27 +74,24 @@ export class UFile {
    */
   public async putFile(key: string, file: Buffer | Readable | string,
     mimeType = defaultMimeType): Promise<void> {
-    switch (true) {
-      case is.buffer(file):
-      case is.string(file):
-        await this.got.put(key, {
-          body: file,
-          headers: {
-            'content-type': mimeType,
-          },
-        })
-        break
-      case file instanceof Stream.Readable:
-        await pipeline(file, this.got.put(key, {
-          headers: {
-            'content-type': mimeType,
-          },
-          isStream: true,
-        }))
-        break
-      default:
-        throw new TypeError('unknown file type')
+    if (is.buffer(file) || is.string(file)) {
+      await this.got.put(key, {
+        body: file,
+        headers: {
+          'content-type': mimeType,
+        },
+      })
+    } else if (file instanceof Readable) {
+      const req = this.got.put(key, {
+        headers: {
+          'content-type': mimeType,
+        },
+        isStream: true,
+      })
+      const res = file.pipe(req)
+      await finished(res)
     }
+    throw new TypeError('unknown file type')
   }
 
   /**

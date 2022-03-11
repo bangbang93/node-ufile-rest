@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "test": "mocha",
+    "test": "ts-node-esm test/index.ts",
     "doc": "typedoc src/index.ts",
     "prepublishOnly": "npm run build"
   },
