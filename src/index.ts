@@ -1,7 +1,7 @@
 import is from '@sindresorhus/is'
 import {createHmac} from 'crypto'
 import {createReadStream} from 'fs'
-import got, {Got, Options} from 'got'
+import got, {Got, Method, Options} from 'got'
 import {Readable} from 'stream'
 import {EnumStorageClass} from './constant'
 import {
@@ -317,6 +317,21 @@ export class UFile {
         metav: mimeType,
       },
     })
+  }
+
+  public getAuthorization(
+    method: Method,
+    key: string,
+    contentMd5: string = '',
+    contentType: string = 'multipart/form-data',
+  ): string {
+    if (!key.startsWith('/')) {
+      key += `/${key}`
+    }
+    const p = [method.toUpperCase(), contentMd5, contentType, '', `${this.bucketName}${key}`]
+    const str = p.join('\n')
+    const sign = createHmac('sha1', this.priKey).update(str).digest('base64')
+    return `UCloud ${this.pubKey}:${sign}`
   }
 
   private sign(options: Options): string {
