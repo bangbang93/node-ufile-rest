@@ -1,6 +1,6 @@
 {
   "name": "ufile-rest",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "ufile sdk for ucloud",
   "exports": "./lib/index.js",
   "types": "./lib/index.d.ts",
