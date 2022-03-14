@@ -72,6 +72,7 @@ export class UFile {
    */
   public async putFile(key: string, file: Buffer | Readable | string,
     mimeType = defaultMimeType): Promise<void> {
+    key = key.replace(/^\//, '')
     await this.got.put(key, {
       headers: {
         'content-type': mimeType,
@@ -119,6 +120,7 @@ export class UFile {
    * @returns {Promise}
    */
   public async getFile(key: string, range?: string, ifModifiedSince?: string): Promise<Buffer> {
+    key = key.replace(/^\//, '')
     return this.got(key, {
       headers: {
         range,
@@ -136,6 +138,7 @@ export class UFile {
    * @returns {Promise}
    */
   public async getFileStream(key: string, range?: string, ifModifiedSince?: string): Promise<Readable> {
+    key = key.replace(/^\//, '')
     return this.got(key, {
       headers: {
         range,
@@ -151,6 +154,7 @@ export class UFile {
    * @returns {Promise}
    */
   public async headFile(key: string): Promise<IHeadFileRes> {
+    key = key.replace(/^\//, '')
     const res = await this.got.head(key)
     return res.headers
   }
@@ -182,6 +186,7 @@ export class UFile {
    * @returns {Promise}
    */
   public async deleteFile(key: string): Promise<void> {
+    key = key.replace(/^\//, '')
     await this.got.delete(key)
   }
 
@@ -191,6 +196,7 @@ export class UFile {
    * @returns {Promise}
    */
   public async initiateMultipartUpload(key: string): Promise<IInitiateMultipartUploadRes> {
+    key = key.replace(/^\//, '')
     return this.got.post(key, {
       searchParams: {
         uploads: '',
@@ -208,6 +214,7 @@ export class UFile {
    * @returns {Promise}
    */
   public async uploadPart(key: string, uploadId: string, partNumber: number, buffer: Buffer): Promise<IUploadPartRes> {
+    key = key.replace(/^\//, '')
     return this.got.put(key, {
       searchParams: {
         uploadId,
@@ -228,6 +235,7 @@ export class UFile {
    */
   public async finishMultipartUpload(key: string, uploadId: string, parts?: string[],
     newKey?: string): Promise<IFinishMultipartUploadRes> {
+    key = key.replace(/^\//, '')
     const res = await this.got.post<Omit<IFinishMultipartUploadRes, 'ETag'>>(key, {
       searchParams: {
         uploadId,
@@ -249,6 +257,7 @@ export class UFile {
    * @returns {Promise}
    */
   public async abortMultipartUpload(key: string, uploadId: string): Promise<void> {
+    key = key.replace(/^\//, '')
     await this.got.delete(key, {
       searchParams: {
         uploadId,
@@ -281,6 +290,7 @@ export class UFile {
    * @param storageClass
    */
   public async classSwitch(key: string, storageClass: EnumStorageClass): Promise<void> {
+    key = key.replace(/^\//, '')
     await this.got.put(key, {
       searchParams: {
         storageClass,
@@ -293,6 +303,7 @@ export class UFile {
    * @param key
    */
   public async restore(key: string): Promise<void> {
+    key = key.replace(/^\//, '')
     await this.got.put(key, {
       searchParams: {
         restore: '',
@@ -307,6 +318,7 @@ export class UFile {
    * @returns {Promise}
    */
   public async opMeta(key: string, mimeType: string): Promise<void> {
+    key = key.replace(/^\//, '')
     await this.got.post(key, {
       searchParams: {
         opmeta: '',
