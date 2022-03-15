@@ -320,6 +320,7 @@ export class UFile {
    * @param maxRetry 重试次数
    */
   public async waitForRestore(key: string, interval = ms('10s'), maxRetry = 30): Promise<void> {
+    key = key.replace(/^\//, '')
     for (let i = 0; i <= maxRetry; i++) {
       const res = await this.got.head(key, {throwHttpErrors: false})
       if (res.statusCode === 200) {
