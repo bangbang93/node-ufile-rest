@@ -4,6 +4,7 @@ import {createReadStream} from 'fs'
 import got, {Got, HTTPError, Method, Options} from 'got'
 import ms from 'ms'
 import {Readable} from 'stream'
+import {promisify} from 'util'
 import {EnumStorageClass} from './constant'
 import {
   IFinishMultipartUploadRes, IGetMultiUploadIdRes, IHeadFileRes, IInitiateMultipartUploadRes, IListObjectsRes, IOptions,
@@ -320,18 +321,13 @@ export class UFile {
    */
   public async waitForRestore(key: string, interval = ms('10s'), maxRetry = 30): Promise<void> {
     for (let i = 0; i <= maxRetry; i++) {
-      try {
-        await this.headFile(key)
-      } catch (e) {
-        if (e instanceof HTTPError) {
-          if (e.response.statusCode === 403) {
-            await new Promise((resolve) => setTimeout(resolve, interval))
-            continue
-          }
-        }
-        throw e
+      const res = await this.got.head(key, {throwHttpErrors: false})
+      if (res.statusCode === 200) {
+        return
       }
+      await new Promise((resolve) => setTimeout(resolve, interval))
     }
+    throw new Error('restore wait timeout')
   }
 
   /**
