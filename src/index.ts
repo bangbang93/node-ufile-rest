@@ -319,13 +319,12 @@ export class UFile {
    * @param maxRetry 重试次数
    */
   public async waitForRestore(key: string, interval = ms('10s'), maxRetry = 30): Promise<void> {
-    key = key.replace(/^\//, '')
     for (let i = 0; i <= maxRetry; i++) {
       const headers = await this.headFile(key)
-      if (!headers['x-ufile-restore']) {
-        throw new Error('no restore request')
+      if (headers['x-ufile-storage-class'].toString() !== EnumStorageClass.archive) {
+        throw new Error('not archive storage')
       }
-      if (!headers['x-ufile-restore'].toString().includes('ongoing-request="true"')) return
+      if (headers['x-ufile-restore']?.toString().includes('ongoing-request="false"')) return
       await new Promise((resolve) => setTimeout(resolve, interval))
     }
     throw new Error('restore wait timeout')
