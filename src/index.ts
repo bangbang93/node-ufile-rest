@@ -322,13 +322,37 @@ export class UFile {
   public async waitForRestore(key: string, interval = ms('10s'), maxRetry = 30): Promise<void> {
     key = key.replace(/^\//, '')
     for (let i = 0; i <= maxRetry; i++) {
-      const res = await this.got.head(key, {throwHttpErrors: false})
-      if (res.statusCode === 200) {
-        return
+      const headers = await this.headFile(key)
+      if (!headers['x-ufile-restore']) {
+        throw new Error('no restore request')
       }
+      if (!headers['x-ufile-restore'].toString().includes('ongoing-request="false"')) return
       await new Promise((resolve) => setTimeout(resolve, interval))
     }
     throw new Error('restore wait timeout')
+  }
+
+  /**
+   * 判断是否需要解冻
+   * @param key
+   */
+  public async isNeedRestore(key: string): Promise<boolean> {
+    const headers = await this.headFile(key)
+    if (headers['x-ufile-storage-class'].toString() !== EnumStorageClass.archive) {
+      return false
+    }
+    const restoreState = headers['x-ufile-restore']?.toString()
+    if (!restoreState) return true
+    if (restoreState.includes('ongoing-request="true"')) return false
+    if (restoreState.includes('ongoing-request="false"')) {
+      const expiresMatch = /expiry-date="(?<date>.*)"/.exec(restoreState)
+      if (!expiresMatch?.groups.date) {
+        return true
+      }
+      const expires = new Date(expiresMatch?.groups.date)
+      return Date.now() < expires.valueOf()
+    }
+    return true
   }
 
   /**
