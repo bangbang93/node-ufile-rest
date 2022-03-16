@@ -1,15 +1,14 @@
 import is from '@sindresorhus/is'
 import {createHmac} from 'crypto'
 import {createReadStream} from 'fs'
-import got, {Got, HTTPError, Method, Options} from 'got'
+import got, {Got, Method, Options} from 'got'
 import ms from 'ms'
 import {Readable} from 'stream'
-import {promisify} from 'util'
-import {EnumStorageClass} from './constant'
+import {EnumStorageClass} from './constant.js'
 import {
   IFinishMultipartUploadRes, IGetMultiUploadIdRes, IHeadFileRes, IInitiateMultipartUploadRes, IListObjectsRes, IOptions,
   IPrefixFileListRes, IUploadPartRes,
-} from './type'
+} from './type.js'
 
 const defaultMimeType = 'application/octet-stream'
 
