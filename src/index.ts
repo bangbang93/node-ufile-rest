@@ -325,7 +325,7 @@ export class UFile {
       if (!headers['x-ufile-restore']) {
         throw new Error('no restore request')
       }
-      if (!headers['x-ufile-restore'].toString().includes('ongoing-request="false"')) return
+      if (!headers['x-ufile-restore'].toString().includes('ongoing-request="true"')) return
       await new Promise((resolve) => setTimeout(resolve, interval))
     }
     throw new Error('restore wait timeout')
