@@ -1,17 +1,5 @@
 {
-  "compilerOptions": {
-    "module": "es2022",
-    "target": "es2019",
-    "moduleResolution": "node",
-    "inlineSourceMap": true,
-    "declaration": true,
-    "outDir": "lib",
-    "allowSyntheticDefaultImports": true,
-    "sourceRoot": "src"
-  },
-  "exclude": [
-    "node_modules"
-  ],
+  "extends": "./tsconfig.json",
   "include": [
     "src"
   ]
