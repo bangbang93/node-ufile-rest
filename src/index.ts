@@ -35,7 +35,7 @@ export class UFile {
       if (!options.region) {
         throw new TypeError('domain and region cannot both be null')
       }
-      this.domain = `${this.bucketName}.${options.region}.ufileos.com`
+      this.domain = `${this.bucketName}.${options.region}`
     }
     this.scheme = options.useHttps ? 'https' : 'http'
     this.got = got.extend({
