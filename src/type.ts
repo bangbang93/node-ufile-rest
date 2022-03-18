@@ -79,7 +79,7 @@ export interface IOptions {
   pubKey: string
   priKey: string
   bucketName: string
-  region: string
+  region?: string
   domain?: string
   useHttps?: boolean
 }

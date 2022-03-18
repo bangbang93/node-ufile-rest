@@ -29,7 +29,14 @@ export class UFile {
     this.pubKey = options.pubKey
     this.priKey = options.priKey
     this.bucketName = options.bucketName
-    this.domain = `${this.bucketName}.${options.region}.ufileos.com`
+    if (options.domain) {
+      this.domain = options.domain
+    } else {
+      if (!options.region) {
+        throw new TypeError('domain and region cannot both be null')
+      }
+      this.domain = options.domain ?? `${this.bucketName}.${options.region}.ufileos.com`
+    }
     this.scheme = options.useHttps ? 'https' : 'http'
     this.got = got.extend({
       prefixUrl: `${this.scheme}://${this.domain}`,
