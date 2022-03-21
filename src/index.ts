@@ -2,7 +2,9 @@ import is from '@sindresorhus/is'
 import {createHmac} from 'crypto'
 import {createReadStream} from 'fs'
 import got, {Got, Method, Options} from 'got'
+import {lookup} from 'mime-types'
 import ms from 'ms'
+import {extname} from 'path'
 import {Readable} from 'stream'
 import {EnumStorageClass} from './constant.js'
 import {
@@ -78,9 +80,9 @@ export class UFile {
    * @param {string} [mimeType='application/octet-stream'] 文件类型
    * @returns {Promise}
    */
-  public async putFile(key: string, file: Buffer | Readable | string,
-    mimeType = defaultMimeType): Promise<void> {
+  public async putFile(key: string, file: Buffer | Readable | string, mimeType?: string): Promise<void> {
     key = key.replace(/^\//, '')
+    mimeType = lookup(extname(key)) || defaultMimeType
     await this.got.put(key, {
       headers: {
         'content-type': mimeType,
@@ -96,8 +98,8 @@ export class UFile {
    * @param {string} [mimeType='application/octet-stream'] 文件类型
    * @returns {Promise}
    */
-  public async uploadFile(key: string, path: string,
-    mimeType = defaultMimeType): Promise<void> {
+  public async uploadFile(key: string, path: string, mimeType?: string): Promise<void> {
+    mimeType = lookup(extname(key)) || defaultMimeType
     return this.putFile(key, createReadStream(path), mimeType)
   }
 
