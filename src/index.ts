@@ -406,11 +406,11 @@ export class UFile {
           p.push(`${key.toLowerCase()}:${getHeader(key)}`)
         }
       })
-    let url = options.url
-    if (is.string(url)) {
-      url = new URL(url)
+    let key = options.url
+    if (!is.string(key) || key.match(/^https?:\/\//)) {
+      key = decodeURI(new URL(options.url).pathname)
     }
-    p.push(`/${this.bucketName}${url.pathname}`)
+    p.push(`/${this.bucketName}${key}`)
     const stringToSign = p.join('\n')
     return createHmac('sha1', this.priKey).update(stringToSign).digest('base64')
 
