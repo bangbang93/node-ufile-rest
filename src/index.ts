@@ -389,9 +389,9 @@ export class UFile {
     contentType: string = 'multipart/form-data',
   ): string {
     if (!key.startsWith('/')) {
-      key += `/${key}`
+      key = `/${key}`
     }
-    const p = [method.toUpperCase(), contentMd5, contentType, '', `${this.bucketName}${key}`]
+    const p = [method.toUpperCase(), contentMd5, contentType, '', `/${this.bucketName}${key}`]
     const str = p.join('\n')
     const sign = createHmac('sha1', this.priKey).update(str).digest('base64')
     return `UCloud ${this.pubKey}:${sign}`
