@@ -1,7 +1,7 @@
 import is from '@sindresorhus/is'
 import {createHmac} from 'crypto'
 import {createReadStream} from 'fs'
-import got, {Got, Method, Options} from 'got'
+import got, {Got, Method, Options, Request} from 'got'
 import {lookup} from 'mime-types'
 import ms from 'ms'
 import {extname} from 'path'
@@ -147,7 +147,7 @@ export class UFile {
    * @param {string} [ifModifiedSince] 只返回从某时修改过的文件，否则返回304(not modified)
    * @returns {Promise}
    */
-  public async getFileStream(key: string, range?: string, ifModifiedSince?: string): Promise<Readable> {
+  public async getFileStream(key: string, range?: string, ifModifiedSince?: string): Promise<Request> {
     key = key.replace(/^\//, '')
     return this.got(key, {
       headers: {
