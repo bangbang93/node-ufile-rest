@@ -312,9 +312,7 @@ export class UFile {
    */
   public async restore(key: string): Promise<void> {
     key = key.replace(/^\//, '')
-    await this.got.put(key, {
-      searchParams: 'restore',
-    })
+    await this.got.put(`${key}?restore`)
   }
 
   /**
