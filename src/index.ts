@@ -1,5 +1,7 @@
 import is from '@sindresorhus/is'
+import exp from 'constants'
 import {createHmac} from 'crypto'
+import {isPast} from 'date-fns'
 import {createReadStream} from 'fs'
 import got, {Got, Method, Options, Request} from 'got'
 import {lookup} from 'mime-types'
@@ -147,7 +149,7 @@ export class UFile {
    * @param {string} [ifModifiedSince] 只返回从某时修改过的文件，否则返回304(not modified)
    * @returns {Promise}
    */
-  public async getFileStream(key: string, range?: string, ifModifiedSince?: string): Promise<Request> {
+  public getFileStream(key: string, range?: string, ifModifiedSince?: string): Request {
     key = key.replace(/^\//, '')
     return this.got(key, {
       headers: {
@@ -322,13 +324,34 @@ export class UFile {
    * @param maxRetry 重试次数
    */
   public async waitForRestore(key: string, interval = ms('10s'), maxRetry = 30): Promise<void> {
-    for (let i = 0; i <= maxRetry; i++) {
+    for (; maxRetry >= 0; maxRetry--) {
       const headers = await this.headFile(key)
       if (headers['x-ufile-storage-class'].toString() !== EnumStorageClass.archive) {
         throw new Error('not archive storage')
       }
-      if (headers['x-ufile-restore']?.toString().includes('ongoing-request="false"')) return
-      await new Promise((resolve) => setTimeout(resolve, interval))
+
+      const restoreState = headers['x-ufile-restore']?.toString()
+      if (!restoreState) {
+        if (maxRetry === 0) {
+          throw new Error('not restoring')
+        } else {
+          await new Promise((resolve) => setTimeout(resolve, interval))
+          continue
+        }
+      }
+      if (restoreState.includes('ongoing-request="true"')) {
+        await new Promise((resolve) => setTimeout(resolve, interval))
+        continue
+      }
+      const expiresMatch = /expiry-date="(?<date>.*)"/.exec(restoreState)
+      if (!expiresMatch?.groups.date) {
+        throw new Error('unknown expire date')
+      }
+      const expires = new Date(expiresMatch?.groups.date)
+      if (isPast(expires)) {
+        throw new Error('restore is expires')
+      }
+      return
     }
     throw new Error('restore wait timeout')
   }
@@ -344,14 +367,14 @@ export class UFile {
     }
     const restoreState = headers['x-ufile-restore']?.toString()
     if (!restoreState) return true
-    if (restoreState.includes('ongoing-request="true"')) return false
+    if (restoreState.includes('ongoing-request="true"')) return true
     if (restoreState.includes('ongoing-request="false"')) {
       const expiresMatch = /expiry-date="(?<date>.*)"/.exec(restoreState)
       if (!expiresMatch?.groups.date) {
         return true
       }
       const expires = new Date(expiresMatch?.groups.date)
-      return Date.now() < expires.valueOf()
+      return isPast(expires)
     }
     return true
   }
