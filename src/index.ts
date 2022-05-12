@@ -208,9 +208,7 @@ export class UFile {
   public async initiateMultipartUpload(key: string): Promise<IInitiateMultipartUploadRes> {
     key = key.replace(/^\//, '')
     return this.got.post(key, {
-      searchParams: {
-        uploads: '',
-      },
+      searchParams: 'uploads',
     })
       .json()
   }
@@ -315,9 +313,7 @@ export class UFile {
   public async restore(key: string): Promise<void> {
     key = key.replace(/^\//, '')
     await this.got.put(key, {
-      searchParams: {
-        restore: '',
-      },
+      searchParams: 'restore',
     })
   }
 
