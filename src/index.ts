@@ -1,5 +1,4 @@
 import is from '@sindresorhus/is'
-import exp from 'constants'
 import {createHmac} from 'crypto'
 import {isPast} from 'date-fns'
 import {createReadStream} from 'fs'
@@ -13,6 +12,7 @@ import {
   IFinishMultipartUploadRes, IGetMultiUploadIdRes, IHeadFileRes, IInitiateMultipartUploadRes, IListObjectsRes, IOptions,
   IPrefixFileListRes, IUploadPartRes,
 } from './type.js'
+import {setTimeout} from 'timers/promises'
 
 const defaultMimeType = 'application/octet-stream'
 
@@ -335,12 +335,12 @@ export class UFile {
         if (maxRetry === 0) {
           throw new Error('not restoring')
         } else {
-          await new Promise((resolve) => setTimeout(resolve, interval))
+          await setTimeout(interval)
           continue
         }
       }
       if (restoreState.includes('ongoing-request="true"')) {
-        await new Promise((resolve) => setTimeout(resolve, interval))
+        await setTimeout(interval)
         continue
       }
       const expiresMatch = /expiry-date="(?<date>.*)"/.exec(restoreState)
