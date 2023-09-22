@@ -1,3 +1,4 @@
+import {Options} from 'got'
 import {EnumStorageClass} from './constant'
 
 export interface IPrefixFileListRes {
@@ -82,4 +83,5 @@ export interface IOptions {
   region?: string
   domain?: string
   useHttps?: boolean
+  gotOptions?: Options
 }

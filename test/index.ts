@@ -11,7 +11,7 @@ const ufile = new UFile({
 })
 
 const file
-  = 'tomoyo/ftp/stdf/Datalog/YL0003/A778939-/3380D-0036_2020NOV27052911A778939-22A778939-20201127_034116.std.xz'
+  = 'tomoyo/ftp/stdf/Datalog/YL0003/A778939-/3380D-0036_2020NOV27052911A778939-22A778939-20201127_034116#.std.xz'
 
 try {
   await ufile.restore(file)

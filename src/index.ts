@@ -54,6 +54,7 @@ export class UFile {
           },
         ],
       },
+      ...options.gotOptions,
     })
   }
 
